@@ -1,1 +1,2 @@
 # forfun
+Hello, word!
