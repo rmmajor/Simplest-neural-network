@@ -32,3 +32,4 @@ $RECYCLE.BIN/
 
 #PyCharm files ignored
 venv/
+__pycache__/
