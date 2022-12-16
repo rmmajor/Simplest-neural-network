@@ -5,10 +5,9 @@ from test_set import initialize_set
 X_train, Y_train = initialize_set(nx=3, m=2000)
 X_test, Y_test = initialize_set()
 
-
-# m_train = X_train.shape[0]
-# nx = X_train.shape[1]
-# m_test = X_test.shape[0]
+m_train = X_train.shape[0]
+nx = X_train.shape[1]
+m_test = X_test.shape[0]
 
 
 def sigmoid(X):
