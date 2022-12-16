@@ -5,10 +5,9 @@ from test_set import initialize_set
 X_train, Y_train = initialize_set(nx=3, m=2000)
 X_test, Y_test = initialize_set()
 
-
-# m_train = X_train.shape[0]
-# nx = X_train.shape[1]
-# m_test = X_test.shape[0]
+m_train = X_train.shape[0]
+nx = X_train.shape[1]
+m_test = X_test.shape[0]
 
 
 def sigmoid(X):
@@ -19,7 +18,7 @@ def sigmoid(X):
 
 def sigmoid_derivative(dA, cache):
     Z = cache
-    s = sigmoid(Z)
+    s = 1 / (1 + np.exp(-Z))
     dZ = dA * s * (1 - s)
     return dZ
 
@@ -62,7 +61,7 @@ def leaky_relu_derivative(dA, cache):
 
 
 def init_params(layer_sz):
-    np.random.seed(3)
+    # np.random.seed(3)
     parameters = {}
     L = len(layer_sz)
 
@@ -80,11 +79,15 @@ def linear_forward(A, W, b):
     Z = np.dot(W, A) + b
     assert (Z.shape == (W.shape[0], A.shape[1]))
     cache = (A, W, b)
+
     return Z, cache
 
 
 def activation_forward(A_prev, W, b, activation='relu'):
     Z, linear_cache = linear_forward(A_prev, W, b)
+    # print('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
+    # print(Z)
+    # print('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ')
     activation_cache = None
     if activation == 'relu':
         A, activation_cache = relu(Z)
@@ -97,6 +100,9 @@ def activation_forward(A_prev, W, b, activation='relu'):
 
     assert (A.shape == (W.shape[0], A_prev.shape[1]))
     cache = (linear_cache, activation_cache)
+    # print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+    # print(A)
+    # print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
 
     return A, cache
 
@@ -111,18 +117,31 @@ def L_forward(X, parameters):
         A, cache = activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)])
         caches.append(cache)
 
-    AL, cache = activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)])
+    AL, cache = activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation='sigmoid')
     assert(AL.shape == (1, X.shape[1]))
     caches.append(cache)
+
+    # print()
+    # print(caches)
+    # print()
 
     return AL, caches
 
 
 def cost_func(AL, Y):
     m = AL.shape[1]
+    # cost = 0
     cost = np.sum(np.multiply(Y, np.log(AL)) + np.multiply(1 - Y, np.log(1 - AL))) / (-m)
+    print('Al and Y')
+    # print(AL, Y)
+    print('cost1')
+    # print((np.multiply(Y, np.log(AL)) ))
+    # print()
+    # print(np.multiply(1 - Y, np.log(1 - AL)))
+
     cost = np.squeeze(cost)  # this turns [[17]] into 17
     assert (cost.shape == ())
+    print(cost)
     return cost
 
 
@@ -175,7 +194,8 @@ def L_backward(AL, Y, caches):
     dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
 
     current_cache = caches[L - 1]
-    grads["dA" + str(L - 1)], grads["dW" + str(L)], grads["db" + str(L)] = activation_backward(dAL, current_cache)
+    grads["dA" + str(L - 1)], grads["dW" + str(L)], grads["db" + str(L)] = activation_backward(dAL, current_cache,
+                                                                                               activation='sigmoid')
 
     # Loop from l=L-2 to l=0
     for l in reversed(range(L - 1)):
@@ -200,7 +220,7 @@ def upd(parameters, grads, learning_rate):
 
 
 def L_layer_model(X, Y, layer_dims, learning_rate=0.0075, num_iterations=2500):
-    np.random.seed(1)
+    # np.random.seed(1)
     costs = []
     parameters = init_params(layer_dims)
     for i in range(0, num_iterations):
@@ -215,7 +235,7 @@ def L_layer_model(X, Y, layer_dims, learning_rate=0.0075, num_iterations=2500):
     plt.plot(np.squeeze(costs))
     plt.ylabel('cost')
     plt.xlabel('iterations (per hundreds)')
-    plt.title("Learning rate =" + str(learning_rate))
+    plt.title("Learning rate = " + str(learning_rate))
     plt.show()
     return parameters
 
